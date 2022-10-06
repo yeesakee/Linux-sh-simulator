@@ -1,0 +1,14 @@
+  printf("\nhead: %s\n", head);
+  printf("tail: %s\n", tail);
+  printf("command: %s\n", command);
+    printf("dir[%d] = %s\n", i, dir[i]);
+    printf("sh %d running\n", getpid());
+    printf("enter a command line : ");
+        printf("name[%d] = %s\n", i, name[i]);
+    //    printf("enter a key to continue : "); getchar();
+      printf("sh %d forked a child sh %d\n", getpid(), pid);
+      printf("sh %d wait for child sh %d to terminate\n", getpid(), pid);
+      printf("\nZOMBIE child=%d exitStatus=%x\n", pid, status); 
+      printf("main sh %d repeat loop\n", getpid());
+      printf("child sh %d running\n", getpid());
+      //   printf("%s\n", line);
