@@ -17,8 +17,9 @@ int  ndir;          // number of dirs
 
 char *head, *tail;
 
-int tokenize(char *pathname) // YOU have done this in LAB2
-{                            // YOU better know how to apply it from now on
+// given char *pathname, tokenize it and store it in gpath
+int tokenize(char *pathname) 
+{
   char *s;
   strcpy(gpath, pathname);   // copy into global gpath[]
   s = strtok(gpath, " ");    
@@ -30,6 +31,7 @@ int tokenize(char *pathname) // YOU have done this in LAB2
   name[n] =0;                // name[n] = NULL pointer
 }
 
+// performs I/O redirection according to the given command stored in name
 void ioRedirection() {
   for(int i = 0; i < n; i++) {
     if (strcmp(name[i], "<") == 0) {
@@ -53,6 +55,8 @@ void ioRedirection() {
   }
 }
 
+// given char *cmdLine, scans for pipes. If found return 1
+// otherwise return 0
 int scanner(char *cmdLine) {
   if (strchr(cmdLine, '|') == NULL) {
     return 0;
@@ -68,6 +72,7 @@ int scanner(char *cmdLine) {
   return 1;
 }
 
+// given char* cmd, run the given command using execvp.
 void do_command(char* cmd) {
   char line[256];
   char temp[256];
@@ -77,6 +82,8 @@ void do_command(char* cmd) {
   char* s;
   strncpy(temp, cmd, sizeof(temp));
   s = strtok(temp, " ");
+  // loop through all env PATH directories to find execution file of the
+  // given command
   for (int i = 0; i < ndir; i++) {
     if (i == 0) {
       getcwd(line, 256);
@@ -90,6 +97,8 @@ void do_command(char* cmd) {
   }
 }
 
+// given char* command, and int* pd, recurssively pipe
+// and execute the given command
 void do_pipe(char* command, int* pd) {
   int pid;
   int lpd[2];
@@ -126,8 +135,6 @@ int main(int argc, char *argv[ ], char *env[ ])
   int pid, status;
   char *cmd;
   char line[128];
-  // The base code assume only ONE dir[0] -> "./"
-  // YOU do the general case of many dirs from PATH !!!!
   dir[0] = "./";
   ndir   = 1;
   int size = 0;
@@ -169,10 +176,7 @@ int main(int argc, char *argv[ ], char *env[ ])
     for (i=0; i<n; i++){  // show token strings   
         printf("name[%d] = %s\n", i, name[i]);
     }
-
-    //    printf("enter a key to continue : "); getchar();
-    
-    cmd = name[0];         // line = name0 name1 name2 ....
+    cmd = name[0];
 
     if (strcmp(cmd, "cd")==0){
       chdir(name[1]);
@@ -182,8 +186,6 @@ int main(int argc, char *argv[ ], char *env[ ])
       exit(0); 
     
     pid = fork();
-     
-
     if (pid){
       printf("sh %d forked a child sh %d\n", getpid(), pid);
       printf("sh %d wait for child sh %d to terminate\n", getpid(), pid);
@@ -194,35 +196,8 @@ int main(int argc, char *argv[ ], char *env[ ])
     else{
       printf("child sh %d running\n", getpid());
       int r;
-      // ioRedirection();
-      // for (int i = 0; i < ndir; i++) {
-      //   strcpy(line, dir[i]); strcat(line, "/");strcat(line, cmd);
-      //   printf("%s\n", line);
-      //   r = execvp(line, name);
-      // }
-      //do_command(command);
       do_pipe(command, 0);
        exit(1);
     }
   }
 }
-
-/********************* YOU DO ***********************
-1. I/O redirections:
-
-Example: line = arg0 arg1 ... > argn-1
-
-  check each arg[i]:
-  if arg[i] = ">" {
-     arg[i] = 0; // null terminated arg[ ] array 
-     // do output redirection to arg[i+1] as in Page 131 of BOOK
-  }
-  Then execve() to change image
-
-
-2. Pipes:
-
-Single pipe   : cmd1 | cmd2 :  Chapter 3.10.3, 3.11.2
-
-Multiple pipes: Chapter 3.11.2
-****************************************************/
